@@ -43,7 +43,7 @@
        [?c :car/maker ?e]
        [?c :car/name ?name]]
      @conn)
-
+; #{["i325"] ["i525"]}
 
 ;; or alternatively - but just gets the first one
 (let [car-entity (ffirst
@@ -53,6 +53,7 @@
                          [?c :car/maker ?e]]
                        @conn))]
   (:car/name (d/entity @conn car-entity)))
+; "i525"
 
 ;;;; Better
 
@@ -70,11 +71,12 @@
                     :car/name "2003 530i"}])
 
 ;; entity lookups
-(d/entity @conn [:car/model "E39530i"])
-(d/entity @conn [:maker/email "ceo@bmw.com"])
+(d/entity @conn [:car/model "E39530i"])       ; {:db/id 2}
+(d/entity @conn [:maker/email "ceo@bmw.com"]) ; {:db/id 1}
 
 ;; get attribute from entity
 (:maker/name (d/entity @conn [:maker/email "ceo@bmw.com"]))
+; "BMW"
 
 ;; new insert car - need maker
 (d/transact! conn [{:car/model "E39520i"
@@ -87,11 +89,12 @@
        [?c :car/maker [:maker/email "ceo@bmw.com"]]
        [?c :car/name ?name]]
      @conn)
+; ["2003 530i" "2003 520i"]
 
 ;; change maker name
 (d/transact! conn [{:maker/email "ceo@bmw.com"
                     :maker/name "BMW Motors"}])
 
 (:maker/name (d/entity @conn [:maker/email "ceo@bmw.com"]))
-
+; "BMW Motors"
 
