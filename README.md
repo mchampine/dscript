@@ -7,14 +7,12 @@ DataScript Examples for:
 
  - A translation of examples and exercises.
 
-*
-  [A Beginner's Guide to SQL](http://www.sohamkamani.com/blog/2016/07/07/a-beginners-guide-to-sql/)
+* [A Beginner's Guide to SQL](http://www.sohamkamani.com/blog/2016/07/07/a-beginners-guide-to-sql/)
   (examples in [src/dscript/beginnersql.clj](https://github.com/mchampine/dscript/blob/master/src/dscript/beginnersql.clj))
 
  - A SQL tutorial translated into DataScript schema, data, and queries 
 
-*
-  [DataScript 101](http://udayv.com/clojurescript/clojure/2016/04/28/datascript101/)
+* [DataScript 101](http://udayv.com/clojurescript/clojure/2016/04/28/datascript101/)
   (examples in [src/dscript/core.clj](https://github.com/mchampine/dscript/blob/master/src/dscript/core.clj))
 
  - A few examples from a DataScript 101 tutorial
