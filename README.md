@@ -17,6 +17,12 @@ DataScript Examples for:
 
  - A few examples from a DataScript 101 tutorial
 
+* CSV Example
+  (examples in [src/dscript/tabular.clj](https://github.com/mchampine/dscript/blob/master/src/dscript/tabular.clj))
+
+ - Load CSV data into a DataScript DB and query on it
+
+
 
 ## Usage
 
