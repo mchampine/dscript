@@ -2,7 +2,6 @@
   (:require [datascript.core :as d]
             [clojure.string :as string]))
 
-
 ;; DataScript translation of examples and exercieses from Learn Datalog Today
 ;; See http://www.learndatalogtoday.org/
 
@@ -23,14 +22,16 @@
    :person/death {:db/cardinality :db.cardinality/one},
    :trivia {:db/cardinality :db.cardinality/many}})
 
-;; data ingest from file
+;; Data ingest from file
 (def data (->> "src/dscript/data.txt" slurp read-string))
 
-; create a DataScript db using the schema and dump the data into it
-(def conn (d/create-conn schema))
+;; Create a DataScript db using the schema. 
+(def conn (d/create-conn schema)) ; odd name for creating a database.
+
+; Transact the sample data into the db
 (d/transact! conn data)
 
-; try a query
+; try a query: list all titles
 (d/q '[:find ?title
        :where
        [_ :movie/title ?title]]
@@ -43,7 +44,7 @@
 ;;;;; chapter 1 basic queries
 
 ;; example
-;; find all entity-ids that have the attribute :person/name with a value of "Ridley Scott"
+;; find entity-ids with :person/name "Ridley Scott"
 (d/q '[:find ?e
        :where
        [?e :person/name "Ridley Scott"]]

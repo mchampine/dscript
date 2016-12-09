@@ -98,6 +98,11 @@
 ;;;;;; QUERIES ;;;;;;
 
 ;; names and ids of dan brown books
+
+;; SELECT bookid AS "id", title
+;; FROM books
+;; WHERE author='Dan Brown';
+
 (d/q '[:find ?id ?title
        :where
        [?a :book/author "Dan Brown"]
@@ -106,7 +111,13 @@
      @bookconn)
 ;; ==> #{[2 "The Lost Symbol"] [4 "Inferno"]}
 
+
 ;; all borrowed books written by dan brown w/ return date
+
+;; SELECT books.title AS "Title", borrowings.returndate AS "Return Date"
+;; FROM borrowings JOIN books ON borrowings.bookid=books.bookid
+;; WHERE books.author='Dan Brown';
+
 (d/q '[:find ?title ?return
        :where
        [?bkid :book/author "Dan Brown"]
@@ -116,7 +127,15 @@
      @bookconn)
 ;; ==> #{["Inferno" "04-13-2016"] ["The Lost Symbol" "04-19-2016"] ["The Lost Symbol" "03-23-2016"]}
 
+
 ;; first and last name of everyone who has borrowed a book by dan brown
+
+;; SELECT members.firstname AS "First Name", members.lastname AS "Last Name"
+;; FROM borrowings
+;; JOIN books ON borrowings.bookid=books.bookid
+;; JOIN members ON members.memberid=borrowings.memberid
+;; WHERE books.author='Dan Brown';
+
 (d/q '[:find ?first ?last
        :where
        [?bkid :book/author "Dan Brown"]
@@ -127,7 +146,19 @@
      @bookconn)
 ;; ==> #{["Mike" "Willis"] ["Ellen" "Horton"]}
 
+
 ;; number of dan brown books borrowed per member
+
+;; SELECT
+;; members.firstname AS "First Name",
+;; members.lastname AS "Last Name",
+;; count(*) AS "Number of books borrowed"
+;; FROM borrowings
+;; JOIN books ON borrowings.bookid=books.bookid
+;; JOIN members ON members.memberid=borrowings.memberid
+;; WHERE books.author='Dan Brown'
+;; GROUP BY members.firstname, members.lastname;
+
 (d/q '[:find ?first ?last (count ?bkid)
        :where
        [?bkid :book/author "Dan Brown"]
@@ -138,9 +169,15 @@
      @bookconn)
 ;; ==> (["Ellen" "Horton" 2] ["Mike" "Willis" 1])
 
+
 ;; total stock of books per author
 ;; BUG!  Returns 3 when both dan brown books stock is 3
 ;; for now changed one of of the stock values
+
+;; SELECT author, sum(stock)
+;; FROM books
+;; GROUP BY author;
+
 (d/q '[:find ?author (sum ?stock)
        :where
        [?b :book/author ?author]
@@ -148,7 +185,15 @@
      @bookconn)
 ;; ==> (["Amish Tripathi" 2] ["John Green" 3] ["Robin Sharma" 4] ["Dan Brown" 5])
 
+
 ;; stock of books by a given author
+
+;; SELECT *
+;; FROM (SELECT author, sum(stock)
+;;   FROM books
+;;   GROUP BY author) AS results
+;; WHERE author='Robin Sharma';
+
 (d/q '[:find ?author (sum ?stock)
        :where
        [?b :book/author "Robin Sharma"]
@@ -158,7 +203,17 @@
      @bookconn)
 ;; ==> (["Robin Sharma" 4])
 
+
 ;; title and ID of books written by authors whose stock > 3
+
+;; SELECT title, bookid
+;; FROM books
+;; WHERE author IN (SELECT author
+;;   FROM (SELECT author, sum(stock)
+;;   FROM books
+;;   GROUP BY author) AS results
+;;   WHERE sum > 3);
+
 (d/q '[:find ?title ?id
        :in $ [[?author ?totalstock]]
        :where
@@ -174,7 +229,13 @@
           @bookconn))
 ;; #{["Who Will Cry When You Die?" 3] ["The Lost Symbol" 2] ["Inferno" 4]}
 
+
 ;; Books that have above average stock
+
+;; SELECT *
+;; FROM books
+;; WHERE stock>(SELECT avg(stock) FROM books);
+
 (d/q '[:find ?title
        :in $ [[?avgstock]]
        :where
@@ -190,7 +251,7 @@
 
 ;; update Dan Brown stock to zero
 
-; get dan brown entity ids and stock per title
+;; get dan brown entity ids and stock per title
 (d/q '[:find ?e ?title ?stock
        :where
        [?e :book/author "Dan Brown"]
@@ -200,7 +261,13 @@
 ; #{[9 "Inferno" 2] [7 "The Lost Symbol" 3]}
 ; note, entity ids may change if book is deleted and recreated
 
-; look up dan brown book entities and set stock to 0 in each
+
+;; look up dan brown book entities and set stock to 0 in each
+
+;; UPDATE books
+;; SET stock=0
+;; WHERE author='Dan Brown';
+
 (let [eids (d/q '[:find ?e
                   :where
                   [?e :book/author "Dan Brown"]]
@@ -221,7 +288,12 @@
   (d/transact! bookconn [{:db/id (ffirst inferno) :book/stock 2}
                          {:db/id (ffirst symbol) :book/stock 3}]))
 
+
 ;; Delete Dan Brown books
+
+;; DELETE FROM books
+;; WHERE author='Dan Brown';
+
 (let [eids (d/q '[:find ?e
                   :where
                   [?e :book/author "Dan Brown"]]
@@ -230,7 +302,19 @@
            (d/transact! bookconn [[:db.fn/retractEntity (first eid)]]))]
   (map tx eids))
 
+
 ;; members who borrowed any book with a total stock that was above average.
+
+;; SELECT members.firstname || ' ' || members.lastname AS "Full Name"
+;; FROM borrowings
+;; JOIN members
+;; ON members.memberid=borrowings.memberid
+;; JOIN books
+;; ON books.bookid=borrowings.bookid
+;; WHERE borrowings.bookid
+;; IN (SELECT bookid FROM books WHERE stock>  (SELECT avg(stock) FROM books))
+;; GROUP BY members.firstname, members.lastname;
+
 (d/q '[:find ?first ?last
        :in $ [[?avgstock]]
        :where
