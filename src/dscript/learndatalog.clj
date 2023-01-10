@@ -274,7 +274,7 @@
        [?m :movie/title ?title]
        [?m ?attr]]    ; not [?m ?a] [?a :db/ident ?attr] becase DS has no :db/ident
      @conn "Commando")
-; 
+; #{[:movie/title] [:movie/cast] [:trivia] [:movie/year] [:movie/director]}
 
 ;; Find the names of all people associated with a particular movie
 (d/q '[:find ?name
