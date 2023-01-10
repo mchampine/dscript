@@ -3,6 +3,7 @@
             [clojure.string :as string]))
 
 ;; exmples from http://udayv.com/clojurescript/clojure/2016/04/28/datascript101/
+;; https://gist.github.com/verma/754521e85d9ddbc6554df13b82e3e255
 
 (def conn (d/create-conn {}))
 

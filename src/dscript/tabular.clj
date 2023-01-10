@@ -62,5 +62,5 @@
 ; {:Lead "Jim Grayson", :Phone "(555)761-2385"}
 
 ;; fetch pattern match attrs by entity
-(d/pull mydb '[*] 2)
+(d/pull @conn '[*] 2)
 ; {:db/id 2, :Lead "Prescilla Winston", :Notes "said to call again next week", :Phone "(555)218-3981", :Title "Development Director"}
